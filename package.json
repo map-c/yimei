@@ -6,7 +6,8 @@
     "build": "next build",
     "dev": "PORT=3004 next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "deploy": "npm run build && wrangler pages deploy out --project-name medical-beauty-website"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "1.2.2",
