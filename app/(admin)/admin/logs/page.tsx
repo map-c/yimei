@@ -61,7 +61,7 @@ export default function LogsPage() {
   const [loading, setLoading] = useState(true)
   const [statsLoading, setStatsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [actionFilter, setActionFilter] = useState('')
+  const [actionFilter, setActionFilter] = useState('all')
   const [adminFilter, setAdminFilter] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -83,7 +83,7 @@ export default function LogsPage() {
       })
       
       if (searchTerm) params.append('search', searchTerm)
-      if (actionFilter) params.append('action', actionFilter)
+      if (actionFilter && actionFilter !== 'all') params.append('action', actionFilter)
       if (adminFilter) params.append('adminId', adminFilter)
       if (startDate) params.append('startDate', startDate)
       if (endDate) params.append('endDate', endDate)
@@ -91,13 +91,15 @@ export default function LogsPage() {
       const response = await fetch(`/api/admin/logs?${params}`)
       const result = await response.json()
       if (result.success) {
-        setLogs(result.data.items)
-        setTotalPages(Math.ceil(result.data.total / result.data.limit))
+        setLogs(result.data.items || [])
+        setTotalPages(Math.ceil((result.data.total || 0) / (result.data.limit || 20)))
       } else {
+        setLogs([])
         setMessage({ type: 'error', text: result.error || '获取日志失败' })
       }
     } catch (error) {
       console.error('Error fetching logs:', error)
+      setLogs([])
       setMessage({ type: 'error', text: '网络错误，请重试' })
     } finally {
       setLoading(false)
@@ -280,7 +282,7 @@ export default function LogsPage() {
                   <SelectValue placeholder="全部操作" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">全部操作</SelectItem>
+                  <SelectItem value="all">全部操作</SelectItem>
                   <SelectItem value="LOGIN">登录</SelectItem>
                   <SelectItem value="CREATE_BOOKING">创建预约</SelectItem>
                   <SelectItem value="UPDATE_BOOKING">更新预约</SelectItem>
@@ -340,13 +342,13 @@ export default function LogsPage() {
                 </div>
               ))}
             </div>
-          ) : logs.length === 0 ? (
+          ) : !logs || logs.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               暂无操作记录
             </div>
           ) : (
             <div className="space-y-4">
-              {logs.map((log) => (
+              {(logs || []).map((log) => (
                 <div key={log.id} className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50">
                   <div className="flex items-start space-x-4">
                     <Badge variant={getActionBadgeVariant(log.action)}>

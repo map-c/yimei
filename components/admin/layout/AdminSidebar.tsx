@@ -7,17 +7,18 @@ import { cn } from '@/lib/utils'
 import { AdminPayload } from '@/lib/admin/auth'
 import { hasPermission, Permission } from '@/lib/admin/permissions'
 import { Button } from '@/components/ui/button'
-import { 
-  LayoutDashboard, 
-  Calendar, 
-  ShoppingCart, 
-  Users, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Calendar,
+  ShoppingCart,
+  Users,
+  Settings,
   ChevronLeft,
   ChevronRight,
   Heart,
   FileText,
-  UserCog
+  UserCog,
+  Home
 } from 'lucide-react'
 
 interface AdminSidebarProps {
@@ -33,6 +34,11 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
+  {
+    title: '首页',
+    href: '/admin',
+    icon: Home,
+  },
   {
     title: '仪表板',
     href: '/admin/dashboard',
@@ -105,6 +111,9 @@ export function AdminSidebar({ admin }: AdminSidebarProps) {
   const filteredMenuItems = filterMenuItems(menuItems)
 
   const isActive = (href: string) => {
+    if (href === '/admin') {
+      return pathname === href
+    }
     if (href === '/admin/dashboard') {
       return pathname === href
     }

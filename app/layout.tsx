@@ -3,8 +3,6 @@ import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
 import { Suspense } from "react"
 import "./globals.css"
 
@@ -23,9 +21,7 @@ export default function RootLayout({
     <html lang="zh-CN">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
         <Suspense fallback={<div>Loading...</div>}>
-          <Header />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
+          {children}
         </Suspense>
         <Analytics />
       </body>

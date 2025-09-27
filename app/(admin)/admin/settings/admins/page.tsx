@@ -47,8 +47,8 @@ export default function AdminsPage() {
   const [admins, setAdmins] = useState<Admin[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [roleFilter, setRoleFilter] = useState<string>('')
-  const [statusFilter, setStatusFilter] = useState<string>('')
+  const [roleFilter, setRoleFilter] = useState<string>('all')
+  const [statusFilter, setStatusFilter] = useState<string>('all')
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   
   // 创建管理员相关状态
@@ -71,18 +71,20 @@ export default function AdminsPage() {
     try {
       const params = new URLSearchParams()
       if (searchTerm) params.append('search', searchTerm)
-      if (roleFilter) params.append('role', roleFilter)
-      if (statusFilter) params.append('status', statusFilter)
+      if (roleFilter && roleFilter !== 'all') params.append('role', roleFilter)
+      if (statusFilter && statusFilter !== 'all') params.append('status', statusFilter)
 
       const response = await fetch(`/api/admin/settings/admins?${params}`)
       const result = await response.json()
       if (result.success) {
-        setAdmins(result.data.items)
+        setAdmins(result.data.items || [])
       } else {
+        setAdmins([])
         setMessage({ type: 'error', text: result.error || '获取管理员列表失败' })
       }
     } catch (error) {
       console.error('Error fetching admins:', error)
+      setAdmins([])
       setMessage({ type: 'error', text: '网络错误，请重试' })
     } finally {
       setLoading(false)
@@ -296,7 +298,7 @@ export default function AdminsPage() {
                 <SelectValue placeholder="筛选角色" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">全部角色</SelectItem>
+                <SelectItem value="all">全部角色</SelectItem>
                 <SelectItem value="SUPER_ADMIN">超级管理员</SelectItem>
                 <SelectItem value="ADMIN">管理员</SelectItem>
                 <SelectItem value="OPERATOR">操作员</SelectItem>
@@ -307,7 +309,7 @@ export default function AdminsPage() {
                 <SelectValue placeholder="筛选状态" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">全部状态</SelectItem>
+                <SelectItem value="all">全部状态</SelectItem>
                 <SelectItem value="ACTIVE">活跃</SelectItem>
                 <SelectItem value="INACTIVE">禁用</SelectItem>
               </SelectContent>
@@ -336,13 +338,13 @@ export default function AdminsPage() {
                 </div>
               ))}
             </div>
-          ) : admins.length === 0 ? (
+          ) : !admins || admins.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               暂无管理员数据
             </div>
           ) : (
             <div className="space-y-4">
-              {admins.map((admin) => (
+              {(admins || []).map((admin) => (
                 <div key={admin.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50">
                   <div className="flex items-center space-x-4">
                     <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
