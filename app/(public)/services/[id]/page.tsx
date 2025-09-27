@@ -151,6 +151,12 @@ const serviceData: Record<string, any> = {
   },
 }
 
+export async function generateStaticParams() {
+  return Object.keys(serviceData).map((id) => ({
+    id: id,
+  }))
+}
+
 interface ServiceDetailPageProps {
   params: {
     id: string
